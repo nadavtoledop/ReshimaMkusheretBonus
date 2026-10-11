@@ -41,4 +41,32 @@ public static class Tasks
     {
         throw new NotImplementedException();
     }
+
+    // ---------------------------------------------------------
+    // משימה 4 – חברותא
+    // ממיינים רשימה ביחד עם שותף.
+    // השותף כתב את InsertSorted: מכניסה ערך x לרשימה ממוינת
+    // ומחזירה הפניה לחוליה הראשונה.
+    // אתם כותבים את SortList: עוברת על הרשימה ובונה רשימה ממוינת חדשה,
+    // בעזרת InsertSorted. דוגמה: 3, 1, 2  ->  1, 2, 3
+    //
+    // בחרו שותף. כמה הוא שווה בבונוס:
+    //   Omer 0.5 | Maya 1 | Dani 1 | Noa 5 | Yoni 5 | Liat 10
+    // ---------------------------------------------------------
+    public const string MyPartner = "";
+
+    public static Node<int> SortList(Node<int> first)
+    {
+        throw new NotImplementedException();
+    }
+
+    // החלק של השותף. כרגע זו רק קריאה לקוד שלו, והקוד מוסתר.
+    // כשתתפסו אותו (מקרים ב-MyCases.cs), הקוד שלו יופיע בקובץ FromPartner.txt.
+    // אז מוחקים את 4 השורות של הפעולה שמתחת (מ-public עד הסוגר שלה),
+    // מדביקים במקומן את הפעולה מ-FromPartner.txt, ומתקנים את הבאג.
+    // (שתי פעולות InsertSorted ביחד = שגיאת קומפילציה)
+    public static Node<int> InsertSorted(Node<int> first, int x)
+    {
+        return PartnerCode.InsertSorted(first, x);
+    }
 }

@@ -14,16 +14,49 @@
 
 שימו לב: אם התוצאה שכתבתם במקרה בדיקה שגויה, הבודק יגיד לכם ולא יספור את המקרה. אין קיצורי דרך – צריך לחשב ביד.
 
+## משימה 4 – חברותא
+
+הפעם לא צדים – עובדים ביחד. ממיינים רשימה עם שותף מהצוות.
+
+1. בוחרים שותף בשורה `MyPartner` בקובץ `Lab/Tasks.cs`. כל שותף שווה ניקוד אחר: עומר 0.5, מאיה ודני 1, נועה ויוני 5, ליאת 10.
+2. כותבים את `SortList` – כמה שורות שעוברות על הרשימה ומכניסות כל ערך בעזרת `InsertSorted` של השותף.
+3. אם `SortList` נכשלת בבדיקות הנסתרות, אולי הבעיה אצל השותף. כותבים עד 4 מקרים על `InsertSorted` שלו, ב-`Lab/MyCases.cs`:
+   ```csharp
+   c.T4("2, 5, 9", 7, "2, 5, 7, 9");   // רשימה ממוינת, x, הרשימה אחרי ההכנסה
+   ```
+4. כשתופסים אותו, הקוד שלו מופיע בקובץ `FromPartner.txt`. מעתיקים אותו ל-`Lab/Tasks.cs` במקום הפעולה `InsertSorted`, מוצאים את הבאג ומתקנים.
+5. הניקוד ניתן כש-`SortList` עוברת את כל הבדיקות הנסתרות עם העותק המתוקן שלכם.
+
 ## איך מתחילים
 
-**אפשרות א – בדפדפן, בלי להתקין כלום.** בדף של המאגר ב-GitHub לוחצים על הכפתור הירוק **Code**, אחר כך **Codespaces**, ואז **Create codespace**. אחרי דקה-שתיים נפתח VS Code בדפדפן, עם הכול מוכן.
+**אפשרות א – בדפדפן, בלי להתקין כלום.** בדף של המאגר שלכם ב-GitHub לוחצים על הכפתור הירוק **Code**, אחר כך **Codespaces**, ואז **Create codespace**. אחרי דקה-שתיים נפתח VS Code בדפדפן, עם הכול מוכן, כולל git. אפשר לדלג לסעיף "איך מריצים את הבודק".
 
-**אפשרות ב – במחשב שלכם.** מתקינים פעם אחת:
-- [.NET SDK](https://dotnet.microsoft.com/download)
-- [VS Code](https://code.visualstudio.com/)
-- בתוך VS Code, בלשונית Extensions: התוסף **C# Dev Kit**
+**אפשרות ב – במחשב שלכם (Windows).** פותחים PowerShell ומעתיקים, שורה אחרי שורה:
 
-ואז ב-VS Code: **Clone Git Repository** ומדביקים את הכתובת של המאגר שלכם.
+```
+winget install --id Microsoft.DotNet.SDK.8 -e --source winget
+winget install --id Microsoft.VisualStudioCode -e --source winget
+winget install --id Git.Git -e --source winget
+```
+
+סוגרים את PowerShell ופותחים אותו מחדש (ואם VS Code פתוח – סוגרים גם אותו, את כל החלונות). בלי זה הפקודות החדשות לא מוכרות. ואז (מחליפים את מה שבתוך המרכאות בפרטים שלכם, באנגלית):
+
+```
+code --install-extension ms-dotnettools.csdevkit
+git config --global user.name "Your Name"
+git config --global user.email "your-github-email@example.com"
+```
+
+עכשיו מורידים את המאגר שלכם. את הכתובת מעתיקים מהכפתור הירוק **Code** בדף המאגר ב-GitHub:
+
+```
+cd ~\Documents
+git clone https://github.com/USER/REPO.git
+cd REPO
+code .
+```
+
+(`USER/REPO` – שם המשתמש ושם המאגר שלכם, כמו שמופיעים בכתובת.)
 
 ## איך מריצים את הבודק
 
@@ -38,7 +71,7 @@ dotnet run --project Lab
 ```
 Task 2 - DeleteOdd
   your cases ........ 3 of 4 used, 2 correct
-      case #3 (8, 3): the expected result is wrong - trace it again by hand
+      case #3 (8, 3): ignored - YOUR expected result is wrong, trace it again by hand
   your function ..... hidden checks 7/9
       fails on: odd neighbours in the middle; negative numbers
   interns:
@@ -66,12 +99,32 @@ c.T3("2, 5, 9", 5, 7, "2, 5, 7, 9"); // משימה 3: רשימה, x, y, הרשי
 
 ## הגשה עם git
 
-בכל פעם שהתקדמתם:
-1. בלשונית **Source Control** (הסמל עם שלוש הנקודות המחוברות) כותבים הודעה קצרה, למשל `task 2: caught Dani`.
-2. לוחצים **Commit**.
-3. לוחצים **Sync Changes** (או Push).
+בכל פעם שהתקדמתם – תפסתם מתמחה, תיקנתם את הפעולה – מעתיקים לטרמינל של VS Code:
 
-ב-GitHub הבודק רץ שוב לבד על כל push, והתוצאה מופיעה בלשונית **Actions**.
+```
+git add .
+git commit -m "task 1: caught Noa and Maya"
+git push
+```
+
+בהודעה שבתוך המרכאות כותבים מה עשיתם, באנגלית. ההודעות האלה הן היומן שלכם: המורה רואה אותן, לפי הסדר.
+
+אחרי כל push, GitHub מריץ את הבודק בעצמו. התוצאה מופיעה בדף המאגר, בלשונית **Actions**.
+
+**בפעם הראשונה** ש-push רץ מהמחשב שלכם, ייפתח חלון של GitHub בדפדפן. מתחברים ומאשרים. זה קורה רק פעם אחת.
+
+**אם push נכשל** עם המילה `rejected` (למשל כי עבדתם גם ב-Codespaces וגם בבית):
+
+```
+git pull
+git push
+```
+
+### שאלות למחשבה (לא חובה, נדבר עליהן בכיתה)
+
+- הריצו `git status` לפני `git add .` ואחריו. מה השתנה?
+- הריצו `git diff` לפני `git add .`. מה הוא מראה לכם?
+- הריצו `git log --oneline`. מה זה הצירוף המוזר של אותיות ומספרים בתחילת כל שורה?
 
 ## כללים
 

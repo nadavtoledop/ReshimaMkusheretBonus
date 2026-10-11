@@ -42,6 +42,11 @@ public class Cases
         Add(3, list, x, y, expected, false);
     }
 
+    public void T4(string list, int x, string expected)
+    {
+        Add(4, list, x, 0, expected, false);
+    }
+
     private void Add(int task, string list, int x, int y, string expected, bool expectedIsNumber)
     {
         if (!counters.ContainsKey(task))
@@ -122,6 +127,26 @@ public static class Lists
         return sb.ToString();
     }
 
+    public static int[] ToArray(Node<int> first)
+    {
+        List<int> values = new List<int>();
+        Node<int> p = first;
+        while (p != null && values.Count <= 10000)
+        {
+            values.Add(p.GetValue());
+            p = p.GetNext();
+        }
+        return values.ToArray();
+    }
+
+    public static bool IsSorted(int[] a)
+    {
+        for (int i = 1; i < a.Length; i++)
+            if (a[i - 1] > a[i])
+                return false;
+        return true;
+    }
+
     public static Node<int> Build(int[] a)
     {
         Node<int> first = null;
@@ -146,6 +171,25 @@ public static class Lists
             p = p.GetNext();
         }
         return sb.ToString();
+    }
+}
+
+// The partner's hidden InsertSorted, called from Tasks.InsertSorted until the student replaces it.
+public static class PartnerCode
+{
+    public static Partner Current;
+    public static bool Used;
+
+    public static Node<int> InsertSorted(Node<int> first, int x)
+    {
+        Used = true;
+        if (Current == null)
+            throw new InvalidOperationException("Choose a partner in Tasks.cs");
+        string result = Current.Run(Lists.ToArray(first), x, 0);
+        int[] values;
+        if (!Lists.TryParse(result, out values))
+            throw new InvalidOperationException("Partner returned a broken list");
+        return Lists.Build(values);
     }
 }
 
@@ -227,6 +271,7 @@ public static class Checker
         MyCases.Task1(cases);
         MyCases.Task2(cases);
         MyCases.Task3(cases);
+        MyCases.Task4(cases);
 
         int totalCaught = 0;
         int functionsDone = 0;
@@ -251,14 +296,14 @@ public static class Checker
                 string label = "case #" + c.Index + " (" + c.ListText + ")";
                 if (!c.Readable)
                 {
-                    caseNotes.Add(label + ": can't read it - check the format");
+                    caseNotes.Add(label + ": ignored - can't read it, check the format");
                     continue;
                 }
                 Case cc = c;
                 string correct = Call(() => task.Reference((int[])cc.List.Clone(), cc.X, cc.Y));
                 if (correct != c.Expected)
                 {
-                    caseNotes.Add(label + ": the expected result is wrong - trace it again by hand");
+                    caseNotes.Add(label + ": ignored - YOUR expected result is wrong, trace it again by hand");
                     continue;
                 }
                 valid.Add(c);
@@ -359,13 +404,172 @@ public static class Checker
             totalCaught += caught;
         }
 
+        double pairPoints = RunPair(r, cases);
+
         r.AppendLine();
         r.AppendLine("==================================================");
         r.AppendLine(" TOTAL");
         r.AppendLine("   functions fully correct : " + functionsDone + "/" + tasks.Length);
         r.AppendLine("   interns caught          : " + totalCaught);
+        r.AppendLine("   pair work points        : " + Fmt(pairPoints));
         r.AppendLine("==================================================");
         return r.ToString();
+    }
+
+    private static string Fmt(double d)
+    {
+        return d.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    // Task 4: pair work with one partner.
+    private static double RunPair(StringBuilder r, Cases cases)
+    {
+        r.AppendLine();
+        r.AppendLine("Task 4 - pair work: your SortList + your partner's InsertSorted");
+
+        Partner partner = null;
+        foreach (Partner p in Pair.Partners())
+            if (p.Name.ToLower() == Tasks.MyPartner.Trim().ToLower())
+                partner = p;
+        if (partner == null)
+        {
+            r.AppendLine("  next: choose a partner in Lab/Tasks.cs, for example: MyPartner = \"Noa\";");
+            return 0;
+        }
+        PartnerCode.Current = partner;
+        string name = partner.Name;
+        r.AppendLine(Dots("partner", 22) + name + " (worth " + Fmt(partner.Points) + ")");
+
+        // 1. The student's cases on the partner's InsertSorted - one line per case.
+        List<Case> mine = cases.ForTask(4);
+        r.AppendLine("  your cases on " + name + "'s InsertSorted:");
+        if (mine.Count == 0)
+            r.AppendLine("      none yet - write them in Lab/MyCases.cs, in Task4");
+        string by = null;
+        foreach (Case c in mine)
+        {
+            string label = "      case #" + c.Index + " (list: " + c.ListText + ", x = " + c.X + "): ";
+            if (c.Index > MaxCases)
+            {
+                r.AppendLine(label + "ignored - only cases #1-#" + MaxCases + " count");
+                continue;
+            }
+            if (!c.Readable)
+            {
+                r.AppendLine(label + "ignored - can't read it, check the format");
+                continue;
+            }
+            if (!Lists.IsSorted(c.List))
+            {
+                r.AppendLine(label + "ignored - the list must be sorted, smallest to largest");
+                continue;
+            }
+            Case cc = c;
+            string correct = Call(() => Pair.InsertReference((int[])cc.List.Clone(), cc.X, 0));
+            if (correct != c.Expected)
+            {
+                r.AppendLine(label + "ignored - YOUR expected result is wrong, trace it again by hand");
+                continue;
+            }
+            string got = Call(() => partner.Run((int[])cc.List.Clone(), cc.X, 0));
+            if (got != c.Expected)
+            {
+                r.AppendLine(label + "correct - and " + name + " got it WRONG: " + Pretty(got));
+                if (by == null)
+                    by = "case #" + c.Index;
+            }
+            else
+            {
+                r.AppendLine(label + "correct - but " + name + " got it right too");
+            }
+        }
+        if (by != null)
+        {
+            r.AppendLine(Dots("partner caught", 22) + "yes, by " + by + " - " + name + "'s code is now in FromPartner.txt");
+            SavePartnerCode(partner);
+        }
+        else
+        {
+            r.AppendLine(Dots("partner caught", 22) + "not yet");
+        }
+
+        // 2. The student's SortList, with whatever InsertSorted is in Tasks.cs now.
+        HiddenCheck[] checks = Pair.SortChecks();
+        int passed = 0;
+        bool notWritten = false;
+        List<string> failing = new List<string>();
+        PartnerCode.Used = false;
+        foreach (HiddenCheck hc in checks)
+        {
+            int[] sorted = (int[])hc.List.Clone();
+            Array.Sort(sorted);
+            string want = Lists.Join(sorted);
+            HiddenCheck h = hc;
+            string got = Call(() => Lists.Show(Tasks.SortList(Lists.Build((int[])h.List.Clone()))));
+            if (got == "TODO")
+            {
+                notWritten = true;
+                break;
+            }
+            if (got == want)
+            {
+                passed++;
+            }
+            else
+            {
+                failing.Add(hc.Hint);
+                if (got == "TIMEOUT")
+                    break;
+            }
+        }
+        bool usesPartner = PartnerCode.Used;
+
+        double points = 0;
+        string next;
+        if (notWritten)
+        {
+            r.AppendLine(Dots("your SortList", 22) + "not written yet");
+            next = "write SortList in Lab/Tasks.cs";
+        }
+        else
+        {
+            r.AppendLine(Dots("your SortList", 22) + "hidden checks " + passed + "/" + checks.Length);
+            if (failing.Count > 0)
+            {
+                r.AppendLine("      fails on: " + string.Join("; ", failing));
+                r.AppendLine("      (this says WHERE it broke, not WHY - the bug may be somewhere else)");
+            }
+            r.AppendLine(Dots("InsertSorted", 22) + (usesPartner ? name + "'s hidden code" : "your own copy"));
+
+            bool allPass = passed == checks.Length;
+            if (allPass && (!partner.HasBug || (by != null && !usesPartner)))
+            {
+                points = partner.Points;
+                next = "done!";
+            }
+            else if (allPass && by == null)
+                next = "SortList passes, but you have not caught " + name + " yet - write a case where " + name + " is wrong";
+            else if (!usesPartner)
+                next = "your copy of InsertSorted, or your SortList, still has a bug";
+            else if (by == null)
+                next = "SortList fails - maybe the problem is in " + name + "'s InsertSorted. Write a case (c.T4) where " + name + " is wrong";
+            else
+                next = "in Lab/Tasks.cs, DELETE the old InsertSorted and paste " + name + "'s code from FromPartner.txt in its place, then find and fix the bug";
+        }
+        r.AppendLine(Dots("points", 22) + Fmt(points));
+        r.AppendLine("  next: " + next);
+        return points;
+    }
+
+    private static void SavePartnerCode(Partner partner)
+    {
+        string answers = FindAnswers();
+        string dir = answers != null ? Path.GetDirectoryName(answers) : Directory.GetCurrentDirectory();
+        string text = "// הקוד של " + partner.Name + ".\n"
+            + "// ב-Lab/Tasks.cs מוחקים את הפעולה InsertSorted הקיימת (4 שורות),\n"
+            + "// מדביקים במקומה את הפעולה שלמטה, ואז מוצאים ומתקנים את הבאג.\n\n"
+            + partner.Code.Replace("\r\n", "\n") + "\n";
+        File.WriteAllText(Path.Combine(dir, "FromPartner.txt"), text);
     }
 
     private static string StudentName()

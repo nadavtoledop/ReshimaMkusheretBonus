@@ -30,4 +30,11 @@ public static class MyCases
     {
         // c.T3("2, 5, 9", 5, 7, "2, 5, 7, 9");
     }
+
+    // משימה 4 – בודקים את InsertSorted של השותף:
+    //   c.T4(רשימה ממוינת, x, הרשימה אחרי ההכנסה);
+    public static void Task4(Cases c)
+    {
+        // c.T4("2, 5, 9", 7, "2, 5, 7, 9");
+    }
 }
